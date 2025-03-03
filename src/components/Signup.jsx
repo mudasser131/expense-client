@@ -13,7 +13,7 @@ function Signup() {
     console.log('Signup data:', data);
 
     try {
-      const response = await fetch('http://localhost:4080/auth/signup', {
+      const response = await fetch('http://localhost:4000/api/v1/user/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
