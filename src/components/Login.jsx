@@ -1,28 +1,40 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom'; // For navigation (install react-router-dom if needed)
+import { Link, useNavigate } from 'react-router-dom';
 
 function Login() {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { register, handleSubmit, formState: { errors } } = useForm();
+  const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    console.log('Login data:', data);
+    setError(null); // Reset error state
 
     try {
-      
-      const response = await fetch('http://localhost:4000/api/v1/user/Login', {
+      const response = await fetch('http://localhost:4000/api/v1/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include token cookie
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error('Login failed');
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
+
       const result = await response.json();
-      console.log('Login success:', result);
-      // Handle login success (e.g., store token, redirect)
+      if (result.success) {
+        console.log('Login success:', result);
+        navigate('/'); // Redirect to home page on success
+      } else {
+        throw new Error(result.message || 'Login failed');
+      }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login error:', error.message);
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -37,6 +49,14 @@ function Login() {
             Access your expense tracker
           </p>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="p-4 bg-red-100 text-red-700 rounded-md">
+            {error}
+          </div>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
             <div>
@@ -46,7 +66,10 @@ function Login() {
               <input
                 id="email"
                 type="email"
-                {...register('email', { required: 'Email is required', pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' } })}
+                {...register('email', {
+                  required: 'Email is required',
+                  pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' },
+                })}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
                 placeholder="you@example.com"
               />
@@ -59,7 +82,10 @@ function Login() {
               <input
                 id="password"
                 type="password"
-                {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Password must be at least 6 characters' } })}
+                {...register('password', {
+                  required: 'Password is required',
+                  minLength: { value: 6, message: 'Password must be at least 6 characters' },
+                })}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
                 placeholder="••••••"
               />

@@ -12,21 +12,7 @@ function Footer() {
             <p className="text-sm text-gray-400">Manage your finances with ease.</p>
           </div>
 
-          {/* Navigation Links */}
-          <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-6 text-center">
-            <Link to="/about" className="text-gray-300 hover:text-green-400 transition-colors">
-              About
-            </Link>
-            <Link to="/contact" className="text-gray-300 hover:text-green-400 transition-colors">
-              Contact
-            </Link>
-            <Link to="/privacy" className="text-gray-300 hover:text-green-400 transition-colors">
-              Privacy Policy
-            </Link>
-            <Link to="/terms" className="text-gray-300 hover:text-green-400 transition-colors">
-              Terms of Service
-            </Link>
-          </div>
+         
 
           {/* Copyright */}
           <div className="text-sm text-gray-400 text-center">

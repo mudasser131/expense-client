@@ -1,29 +1,48 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Signup() {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  const navigate = useNavigate();
 
   const password = watch('password'); // For confirm password validation
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    console.log('Signup data:', data);
+    setError(null); // Reset error state
+
+    // Map 'fullname' to match backend expectation
+    const signupData = {
+      fullname: data.fullname,
+      email: data.email,
+      password: data.password,
+    };
 
     try {
       const response = await fetch('http://localhost:4000/api/v1/user/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(signupData),
       });
-      if (!response.ok) throw new Error('Signup failed');
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Signup failed');
+      }
+
       const result = await response.json();
-      console.log('Signup success:', result);
-      // Handle signup success (e.g., redirect to login)
+      if (result.success) {
+        console.log('Signup success:', result);
+        navigate('/login'); // Redirect to login page on success
+      } else {
+        throw new Error(result.message || 'Signup failed');
+      }
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error('Signup error:', error.message);
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -38,20 +57,28 @@ function Signup() {
             Create your expense tracker account
           </p>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="p-4 bg-red-100 text-red-700 rounded-md">
+            {error}
+          </div>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Name
+              <label htmlFor="fullname" className="block text-sm font-medium text-gray-700">
+                Full Name
               </label>
               <input
-                id="name"
+                id="fullname"
                 type="text"
-                {...register('name', { required: 'Name is required' })}
+                {...register('fullname', { required: 'Full name is required' })}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
                 placeholder="John Doe"
               />
-              {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
+              {errors.fullname && <p className="mt-1 text-sm text-red-600">{errors.fullname.message}</p>}
             </div>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -60,7 +87,10 @@ function Signup() {
               <input
                 id="email"
                 type="email"
-                {...register('email', { required: 'Email is required', pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' } })}
+                {...register('email', {
+                  required: 'Email is required',
+                  pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' },
+                })}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
                 placeholder="you@example.com"
               />
@@ -73,7 +103,10 @@ function Signup() {
               <input
                 id="password"
                 type="password"
-                {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Password must be at least 6 characters' } })}
+                {...register('password', {
+                  required: 'Password is required',
+                  minLength: { value: 6, message: 'Password must be at least 6 characters' },
+                })}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
                 placeholder="••••••"
               />
