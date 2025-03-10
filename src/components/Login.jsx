@@ -28,7 +28,7 @@ function Login() {
       const result = await response.json();
       if (result.success) {
         console.log('Login success:', result);
-        navigate('/'); // Redirect to home page on success
+        navigate('/home'); // Redirect to home page on success
       } else {
         throw new Error(result.message || 'Login failed');
       }
@@ -41,74 +41,76 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-6 rounded-lg shadow-md">
-        <div>
-          <h2 className="text-center text-3xl font-bold text-gray-900">Log In</h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Access your expense tracker
-          </p>
-        </div>
-
-        {/* Error Display */}
-        {error && (
-          <div className="p-4 bg-red-100 text-red-700 rounded-md">
-            {error}
-          </div>
-        )}
-
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                {...register('email', {
-                  required: 'Email is required',
-                  pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' },
-                })}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                placeholder="you@example.com"
-              />
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                {...register('password', {
-                  required: 'Password is required',
-                  minLength: { value: 6, message: 'Password must be at least 6 characters' },
-                })}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                placeholder="••••••"
-              />
-              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
-          >
-            {isLoading ? 'Logging in...' : 'Log In'}
-          </button>
-        </form>
-        <p className="text-center text-sm text-gray-600">
-          Need an account?{' '}
-          <Link to="/signup" className="font-medium text-green-600 hover:text-green-500">
-            Sign up
-          </Link>
-        </p>
-      </div>
+    <div className="min-h-screen bg-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div className="max-w-md w-full space-y-8 bg-gray-900 p-6 rounded-lg shadow-md">
+    <div>
+      <h2 className="text-center text-3xl font-bold text-gray-100">Log In</h2>
+      <p className="mt-2 text-center text-sm text-gray-400">
+        Access your expense tracker
+      </p>
     </div>
+
+    {/* Error Display */}
+    {error && (
+      <div className="p-4 bg-red-900 text-red-300 rounded-md">
+        {error}
+      </div>
+    )}
+
+    <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            {...register('email', {
+              required: 'Email is required',
+              pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' },
+            })}
+            className="mt-1 block w-full px-3 py-2 border border-gray-700 bg-gray-800 text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500"
+            placeholder="you@example.com"
+          />
+          {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email.message}</p>}
+        </div>
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            {...register('password', {
+              required: 'Password is required',
+              minLength: { value: 6, message: 'Password must be at least 6 characters' },
+            })}
+            className="mt-1 block w-full px-3 py-2 border border-gray-700 bg-gray-800 text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500"
+            placeholder="••••••"
+          />
+          {errors.password && <p className="mt-1 text-sm text-red-400">{errors.password.message}</p>}
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-gray-100 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
+      >
+        {isLoading ? 'Logging in...' : 'Log In'}
+      </button>
+    </form>
+
+    <p className="text-center text-sm text-gray-400">
+      Need an account?{' '}
+      <Link to="/signup" className="font-medium text-gray-100 hover:text-gray-300">
+        Sign up
+      </Link>
+    </p>
+  </div>
+</div>
+
   );
 }
 

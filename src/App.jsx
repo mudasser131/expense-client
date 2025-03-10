@@ -14,9 +14,9 @@ const App = () => {
     <Navbar />
     <main className="flex-grow mt-16">
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
       </Routes>
     </main>
     <Footer />

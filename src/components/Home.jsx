@@ -202,7 +202,7 @@ const Home = () => {
         method: 'GET',
         credentials: 'include',
       });
-      if (response.ok) navigate('/login');
+      if (response.ok) navigate('/');
       else throw new Error('Logout failed');
     } catch (error) {
       setError(error.message);
@@ -218,245 +218,159 @@ const Home = () => {
   }, 0);
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-      {/* Header */}
-      <header className="bg-white py-8 px-4 sm:px-6 lg:px-8 shadow-md">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Welcome, {user?.fullname || 'User'}!
-            </h1>
-            <p className="mt-2 text-lg text-gray-600">Manage your expenses below</p>
+    <div className="bg-black min-h-screen text-gray-300">
+    {/* Header */}
+    <header className="bg-gray-900 py-8 px-4 sm:px-6 lg:px-8 shadow-md">
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-white">
+            Welcome, {user?.fullname || 'User'}!
+          </h1>
+          <p className="mt-2 text-lg text-gray-400">Manage your expenses below</p>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          disabled={loading}
+        >
+          {loading ? 'Logging out...' : 'Logout'}
+        </button>
+      </div>
+    </header>
+  
+    {/* Main Content */}
+    <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      {/* Error Display */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>
+      )}
+  
+      {/* Summary Section */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-semibold text-white mb-4">Summary</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-md">
+            <h3 className="text-lg font-medium text-gray-300">Total Expenses</h3>
+            <p className="mt-2 text-2xl font-bold text-red-500">₹{totalExpenses.toFixed(2)}</p>
+          </div>
+          <div className="bg-gray-800 p-6 rounded-lg shadow-md">
+            <h3 className="text-lg font-medium text-gray-300">Transaction Count</h3>
+            <p className="mt-2 text-2xl font-bold text-white">{expenses.length}</p>
+          </div>
+        </div>
+      </section>
+  
+      {/* Add Expense Form */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-semibold text-white mb-4">Add New Expense</h2>
+        <form onSubmit={handleAddExpense} className="bg-gray-800 p-6 rounded-lg shadow-md space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-400">Description</label>
+              <input
+                id="description"
+                name="description"
+                type="text"
+                value={formData.description}
+                onChange={handleInputChange}
+                className="mt-1 block w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-300"
+                placeholder="e.g., Groceries"
+                required
+                disabled={loading}
+              />
+            </div>
+            <div>
+              <label htmlFor="amount" className="block text-sm font-medium text-gray-400">Amount</label>
+              <input
+                id="amount"
+                name="amount"
+                type="number"
+                step="0.01"
+                value={formData.amount}
+                onChange={handleInputChange}
+                className="mt-1 block w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-300"
+                placeholder="e.g., 50.00"
+                required
+                disabled={loading}
+              />
+            </div>
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-400">Category</label>
+              <input
+                id="category"
+                name="category"
+                type="text"
+                value={formData.category}
+                onChange={handleInputChange}
+                className="mt-1 block w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-300"
+                placeholder="e.g., Food"
+                required
+                disabled={loading}
+              />
+            </div>
           </div>
           <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            type="submit"
+            className="w-full sm:w-auto px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             disabled={loading}
           >
-            {loading ? 'Logging out...' : 'Logout'}
+            {loading ? 'Adding...' : 'Add Expense'}
           </button>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        {/* Error Display */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>
-        )}
-
-        {/* Summary Section */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Summary</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-medium text-gray-700">Total Expenses</h3>
-              <p className="mt-2 text-2xl font-bold text-red-600">₹{totalExpenses.toFixed(2)}</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-medium text-gray-700">Transaction Count</h3>
-              <p className="mt-2 text-2xl font-bold text-gray-900">{expenses.length}</p>
-            </div>
-          </div>
-        </section>
-
-        {/* Add Expense Form */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Add New Expense</h2>
-          <form onSubmit={handleAddExpense} className="bg-white p-6 rounded-lg shadow-md space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                  Description
-                </label>
-                <input
-                  id="description"
-                  name="description"
-                  type="text"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  placeholder="e.g., Groceries"
-                  required
-                  disabled={loading}
-                />
-              </div>
-              <div>
-                <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-                  Amount
-                </label>
-                <input
-                  id="amount"
-                  name="amount"
-                  type="number"
-                  step="0.01"
-                  value={formData.amount}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  placeholder="e.g., 50.00"
-                  required
-                  disabled={loading}
-                />
-              </div>
-              <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-                  Category
-                </label>
-                <input
-                  id="category"
-                  name="category"
-                  type="text"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  placeholder="e.g., Food"
-                  required
-                  disabled={loading}
-                />
-              </div>
-            </div>
-            <button
-              type="submit"
-              className="w-full sm:w-auto px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-              disabled={loading}
-            >
-              {loading ? 'Adding...' : 'Add Expense'}
-            </button>
-          </form>
-        </section>
-
-        {/* Recent Expenses */}
-        <section>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Recent Expenses</h2>
-          {loading ? (
-            <p className="text-center text-gray-600">Loading...</p>
-          ) : expenses.length === 0 ? (
-            <p className="text-center text-gray-600">No expenses yet.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
-                <thead>
-                  <tr className="bg-gray-50">
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Description</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Amount</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Category</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Date</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+        </form>
+      </section>
+  
+      {/* Recent Expenses */}
+      <section>
+        <h2 className="text-2xl font-semibold text-white mb-4">Recent Expenses</h2>
+        {loading ? (
+          <p className="text-center text-gray-400">Loading...</p>
+        ) : expenses.length === 0 ? (
+          <p className="text-center text-gray-400">No expenses yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-gray-900 border border-gray-700 rounded-lg shadow-md">
+              <thead>
+                <tr className="bg-gray-800">
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">Description</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">Amount</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">Category</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">Date</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {expenses.map((exp) => (
+                  <tr key={exp._id || Math.random()} className="border-t border-gray-800 hover:bg-gray-800">
+                    <td className="px-6 py-4 text-sm text-gray-300">{exp.description}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-red-500">₹{(Number(exp.amount) || 0).toFixed(2)}</td>
+                    <td className="px-6 py-4 text-sm text-gray-300">{exp.category}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{new Date(exp.createdAt).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 flex space-x-2">
+                      <button
+                        onClick={() => handleEditExpense(exp)}
+                        className="px-3 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+                        disabled={loading}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteExpense(exp._id)}
+                        className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600"
+                        disabled={loading}
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {expenses.map((exp) => (
-                    <tr key={exp._id || Math.random()} className="border-t hover:bg-gray-50">
-                      {editId === exp._id ? (
-                        <form onSubmit={(e) => handleUpdateExpense(e, exp._id)} className="contents">
-                          <td className="px-6 py-4">
-                            <label htmlFor={`edit-description-${exp._id}`} className="sr-only">
-                              Description
-                            </label>
-                            <input
-                              id={`edit-description-${exp._id}`}
-                              name="description"
-                              type="text"
-                              value={editFormData.description}
-                              onChange={handleEditInputChange}
-                              className="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
-                              placeholder="e.g., Groceries"
-                              required
-                              disabled={loading}
-                            />
-                          </td>
-                          <td className="px-6 py-4">
-                            <label htmlFor={`edit-amount-${exp._id}`} className="sr-only">
-                              Amount
-                            </label>
-                            <input
-                              id={`edit-amount-${exp._id}`}
-                              name="amount"
-                              type="number"
-                              step="0.01"
-                              value={editFormData.amount}
-                              onChange={handleEditInputChange}
-                              className="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
-                              placeholder="e.g., 50.00"
-                              required
-                              min="0"
-                              disabled={loading}
-                            />
-                          </td>
-                          <td className="px-6 py-4">
-                            <label htmlFor={`edit-category-${exp._id}`} className="sr-only">
-                              Category
-                            </label>
-                            <input
-                              id={`edit-category-${exp._id}`}
-                              name="category"
-                              type="text"
-                              value={editFormData.category}
-                              onChange={handleEditInputChange}
-                              className="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
-                              placeholder="e.g., Food"
-                              required
-                              disabled={loading}
-                            />
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            {new Date(exp.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 flex space-x-2">
-                            <button
-                              type="submit"
-                              className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                              disabled={loading}
-                            >
-                              {loading ? 'Saving...' : 'Save'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setEditId(null)}
-                              className="px-3 py-1 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                              disabled={loading}
-                            >
-                              Cancel
-                            </button>
-                          </td>
-                        </form>
-                      ) : (
-                        <>
-                          <td className="px-6 py-4 text-sm text-gray-900">{exp.description}</td>
-                          <td className="px-6 py-4 text-sm font-medium text-red-600">
-                            ₹{(Number(exp.amount) || 0).toFixed(2)}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-900">{exp.category}</td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            {new Date(exp.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 flex space-x-2">
-                            <button
-                              onClick={() => handleEditExpense(exp)}
-                              className="px-3 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-                              disabled={loading}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteExpense(exp._id)}
-                              className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                              disabled={loading}
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
-      </main>
-    </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    </main>
+  </div>
+  
   );
 };
 
