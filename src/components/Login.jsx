@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors }, reset } = useForm();
   const navigate = useNavigate();
 
   // Check if the user is already logged in by checking the cookie
@@ -37,6 +37,7 @@ function Login() {
       if (result.success) {
         console.log('Login success:', result);
         navigate('/home'); // Redirect to home page on success
+        reset();  // Reset the form data after successful login
       } else {
         throw new Error(result.message || 'Login failed');
       }
@@ -58,8 +59,8 @@ function Login() {
 
         {/* Error Display */}
         {error && (
-          <div className="p-4 bg-red-900 text-red-300 rounded-md">
-            {error}
+          <div className="p-4 bg-red-600 text-white rounded-md mb-4">
+            <span className="font-bold">Error:</span> {error}
           </div>
         )}
 
