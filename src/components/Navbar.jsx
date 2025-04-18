@@ -11,7 +11,7 @@ function Navbar() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/v1/user/logout', {
+      const response = await fetch('https://expensetracker-server-644u.onrender.com/api/v1/user/logout', {
         method: 'GET',
         credentials: 'include',
       });

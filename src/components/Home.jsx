@@ -25,7 +25,7 @@ const Home = () => {
       setLoading(true);
       setError(null);
       try {
-        const userResponse = await fetch('http://localhost:4000/api/v1/user/me', {
+        const userResponse = await fetch('https://expensetracker-server-644u.onrender.com/api/v1/user/me', {
           method: 'GET',
           credentials: 'include',
         });
@@ -37,7 +37,7 @@ const Home = () => {
         if (userData.success) setUser(userData.user);
         else throw new Error(userData.message || 'User fetch failed');
 
-        const expensesResponse = await fetch('http://localhost:4000/api/v1/expense/getall', {
+        const expensesResponse = await fetch('https://expensetracker-server-644u.onrender.com/api/v1/expense/getall', {
           method: 'GET',
           credentials: 'include',
         });
@@ -84,7 +84,7 @@ const Home = () => {
     try {
       setError(null);
       setLoading(true);
-      const response = await fetch('http://localhost:4000/api/v1/expense/add', {
+      const response = await fetch('https://expensetracker-server-644u.onrender.com/api/v1/expense/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -140,7 +140,7 @@ const Home = () => {
     try {
       setError(null);
       setLoading(true);
-      const response = await fetch(`http://localhost:4000/api/v1/expense/update/${id}`, {
+      const response = await fetch(`https://expensetracker-server-644u.onrender.com/api/v1/expense/update/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -173,7 +173,7 @@ const Home = () => {
     try {
       setError(null);
       setLoading(true);
-      const response = await fetch(`http://localhost:4000/api/v1/expense/remove/${id}`, {
+      const response = await fetch(`https://expensetracker-server-644u.onrender.com/api/v1/expense/remove/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -198,7 +198,7 @@ const Home = () => {
   const handleLogout = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:4000/api/v1/user/logout', {
+      const response = await fetch('https://expensetracker-server-644u.onrender.com/api/v1/user/logout', {
         method: 'GET',
         credentials: 'include',
       });
