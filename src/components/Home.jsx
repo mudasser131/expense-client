@@ -24,63 +24,63 @@ const Home = () => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
-      const token = localStorage.getItem("token");
-  
+
       try {
         // Fetch user
-        const userResponse = await fetch("http://localhost:4000/api/v1/user/me", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
+        const userResponse = await fetch(
+          "https://expensetracker-server-644u.onrender.com/api/v1/user/me",
+          {
+            method: "GET",
+            credentials: "include", // Send token cookie
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
         const userData = await userResponse.json();
         console.log(userData, "User Data");
-  
+
         if (!userResponse.ok) {
           throw new Error(userData.message || "Failed to fetch user data");
         }
-  
+
         if (userData.success) setUser(userData.user);
         else throw new Error(userData.message || "User fetch failed");
-  
+
         // Fetch expenses
         const expensesResponse = await fetch(
-          "http://localhost:4000/api/v1/expense/getall",
+          "https://expensetracker-server-644u.onrender.com/api/v1/expense/getall",
           {
             method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
           }
         );
-  
+
         const expensesData = await expensesResponse.json();
         console.log(expensesData, "Expenses Data");
-  
+
         if (!expensesResponse.ok) {
           throw new Error(expensesData.message || "Failed to fetch expenses");
         }
-  
+
         if (expensesData.success) setExpenses(expensesData.expenses);
         else throw new Error(expensesData.message || "Expenses fetch failed");
-  
       } catch (err) {
-        console.error(err.message);
+        console.error("Error:", err.message);
         setError(err.message);
-        // Optional: redirect if unauthorized
-        // if (err.message.includes('Unauthorized')) navigate('/');
+        if (
+          err.message.includes("Unauthorized") ||
+          err.message.includes("not authenticated")
+        ) {
+          navigate("/");
+        }
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, [navigate]);
-  
 
   // Handle form input changes for adding
   const handleInputChange = (e) => {
@@ -97,6 +97,7 @@ const Home = () => {
   // Handle adding a new expense
   const handleAddExpense = async (e) => {
     e.preventDefault();
+
     const newExpense = {
       description: formData.description,
       amount: Number(formData.amount) || 0,
@@ -110,34 +111,43 @@ const Home = () => {
         "https://expensetracker-server-644u.onrender.com/api/v1/expense/add",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           credentials: "include",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newExpense),
         }
       );
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to add expense");
       }
+
       const data = await response.json();
       if (data.success) {
-        console.log("Backend response:", data); // Log full response
-        console.log("New expense:", data.expense); // Log expense object
+        console.log("Backend response:", data);
+        console.log("New expense:", data.expense);
         const formattedExpense = {
           ...data.expense,
-          description: data.expense.description || newExpense.description, // Use form data if missing
-          amount: Number(data.expense.amount) || newExpense.amount, // Ensure number
-          category: data.expense.category || newExpense.category, // Use form data if missing
+          description: data.expense.description || newExpense.description,
+          amount: Number(data.expense.amount) || newExpense.amount,
+          category: data.expense.category || newExpense.category,
           createdAt: data.expense.createdAt || new Date().toISOString(),
         };
-        console.log("Formatted expense:", formattedExpense); // Log final formatted data
+        console.log("Formatted expense:", formattedExpense);
         setExpenses((prev) => [formattedExpense, ...prev]);
         setFormData({ description: "", amount: "", category: "" });
       } else {
         throw new Error(data.message || "Expense addition failed");
       }
     } catch (err) {
+      console.error("Error:", err.message);
       setError(err.message);
+      if (
+        err.message.includes("Unauthorized") ||
+        err.message.includes("not authenticated")
+      ) {
+        navigate("/");
+      }
     } finally {
       setLoading(false);
     }
@@ -156,6 +166,7 @@ const Home = () => {
   // Handle updating an expense
   const handleUpdateExpense = async (e, id) => {
     e.preventDefault();
+
     const updatedExpense = {
       description: editFormData.description,
       amount: Number(editFormData.amount) || 0,
@@ -169,15 +180,17 @@ const Home = () => {
         `https://expensetracker-server-644u.onrender.com/api/v1/expense/update/${id}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
           credentials: "include",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updatedExpense),
         }
       );
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to update expense");
       }
+
       const data = await response.json();
       if (data.success) {
         setExpenses((prev) =>
@@ -192,7 +205,14 @@ const Home = () => {
         throw new Error(data.message || "Expense update failed");
       }
     } catch (err) {
+      console.error("Error:", err.message);
       setError(err.message);
+      if (
+        err.message.includes("Unauthorized") ||
+        err.message.includes("not authenticated")
+      ) {
+        navigate("/");
+      }
     } finally {
       setLoading(false);
     }
@@ -200,8 +220,7 @@ const Home = () => {
 
   // Handle deleting an expense
   const handleDeleteExpense = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this expense?"))
-      return;
+    if (!window.confirm("Are you sure you want to delete this expense?")) return;
 
     try {
       setError(null);
@@ -211,12 +230,15 @@ const Home = () => {
         {
           method: "DELETE",
           credentials: "include",
+          headers: { "Content-Type": "application/json" },
         }
       );
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to delete expense");
       }
+
       const data = await response.json();
       if (data.success) {
         setExpenses((prev) => prev.filter((exp) => exp._id !== id));
@@ -224,11 +246,64 @@ const Home = () => {
         throw new Error(data.message || "Expense deletion failed");
       }
     } catch (err) {
+      console.error("Error:", err.message);
       setError(err.message);
+      if (
+        err.message.includes("Unauthorized") ||
+        err.message.includes("not authenticated")
+      ) {
+        navigate("/");
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  // Handle marking an expense as done/undone (optional, uncomment to enable)
+  /*
+  const handleToggleDone = async (id, currentDone) => {
+    try {
+      setError(null);
+      setLoading(true);
+      const response = await fetch(
+        `https://expensetracker-server-644u.onrender.com/api/v1/expense/mark-done/${id}`,
+        {
+          method: "PUT",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ done: !currentDone }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to toggle done status");
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        setExpenses((prev) =>
+          prev.map((exp) =>
+            exp._id === id ? { ...exp, done: data.expense.done } : exp
+          )
+        );
+      } else {
+        throw new Error(data.message || "Toggle done status failed");
+      }
+    } catch (err) {
+      console.error("Error:", err.message);
+      setError(err.message);
+      if (
+        err.message.includes("Unauthorized") ||
+        err.message.includes("not authenticated")
+      ) {
+        navigate("/");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  */
 
   // Handle logout
   const handleLogout = async () => {
@@ -239,12 +314,24 @@ const Home = () => {
         {
           method: "GET",
           credentials: "include",
+          headers: { "Content-Type": "application/json" },
         }
       );
-      if (response.ok) navigate("/");
-      else throw new Error("Logout failed");
-    } catch (error) {
-      setError(error.message);
+
+      if (response.ok) {
+        navigate("/");
+      } else {
+        throw new Error("Logout failed");
+      }
+    } catch (err) {
+      console.error("Error:", err.message);
+      setError(err.message);
+      if (
+        err.message.includes("Unauthorized") ||
+        err.message.includes("not authenticated")
+      ) {
+        navigate("/");
+      }
     } finally {
       setLoading(false);
     }
@@ -390,6 +477,97 @@ const Home = () => {
           </form>
         </section>
 
+        {/* Edit Expense Form */}
+        {editId && (
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold text-white mb-4">
+              Edit Expense
+            </h2>
+            <form
+              onSubmit={(e) => handleUpdateExpense(e, editId)}
+              className="bg-gray-800 p-6 rounded-lg shadow-md space-y-4"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label
+                    htmlFor="edit-description"
+                    className="block text-sm font-medium text-gray-400"
+                  >
+                    Description
+                  </label>
+                  <input
+                    id="edit-description"
+                    name="description"
+                    type="text"
+                    value={editFormData.description}
+                    onChange={handleEditInputChange}
+                    className="mt-1 block w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-300"
+                    placeholder="e.g., Groceries"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit-amount"
+                    className="block text-sm font-medium text-gray-400"
+                  >
+                    Amount
+                  </label>
+                  <input
+                    id="edit-amount"
+                    name="amount"
+                    type="number"
+                    step="0.01"
+                    value={editFormData.amount}
+                    onChange={handleEditInputChange}
+                    className="mt-1 block w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-300"
+                    placeholder="e.g., 50.00"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit-category"
+                    className="block text-sm font-medium text-gray-400"
+                  >
+                    Category
+                  </label>
+                  <input
+                    id="edit-category"
+                    name="category"
+                    type="text"
+                    value={editFormData.category}
+                    onChange={handleEditInputChange}
+                    className="mt-1 block w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-300"
+                    placeholder="e.g., Food"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+              <div className="flex space-x-4">
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  disabled={loading}
+                >
+                  {loading ? "Updating..." : "Update Expense"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditId(null)}
+                  className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </section>
+        )}
+
         {/* Recent Expenses */}
         <section>
           <h2 className="text-2xl font-semibold text-white mb-4">
@@ -416,6 +594,9 @@ const Home = () => {
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">
                       Date
                     </th>
+                    {/* <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">
+                      Status
+                    </th> */}
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">
                       Actions
                     </th>
@@ -439,6 +620,19 @@ const Home = () => {
                       <td className="px-6 py-4 text-sm text-gray-500">
                         {new Date(exp.createdAt).toLocaleDateString()}
                       </td>
+                      {/* <td className="px-6 py-4 text-sm text-gray-300">
+                        <button
+                          onClick={() => handleToggleDone(exp._id, exp.done)}
+                          className={`px-3 py-1 rounded-md ${
+                            exp.done
+                              ? "bg-green-500 hover:bg-green-600"
+                              : "bg-gray-500 hover:bg-gray-600"
+                          } text-white`}
+                          disabled={loading}
+                        >
+                          {exp.done ? "Done" : "Undone"}
+                        </button>
+                      </td> */}
                       <td className="px-6 py-4 flex space-x-2">
                         <button
                           onClick={() => handleEditExpense(exp)}
