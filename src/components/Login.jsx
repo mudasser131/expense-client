@@ -19,25 +19,29 @@ function Login() {
   const onSubmit = async (data) => {
     setIsLoading(true);
     setError(null); // Reset error state
-
+  
     try {
       const response = await fetch('https://expensetracker-server-644u.onrender.com/api/v1/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Include token in cookie with every request
+        credentials: 'include', // Only needed if backend sets a cookie
         body: JSON.stringify(data),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
-      }
-
+  
       const result = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(result.message || 'Login failed');
+      }
+  
       if (result.success) {
         console.log('Login success:', result);
+  
+        // ✅ Save token to localStorage
+        localStorage.setItem('token', result.token);
+  
         navigate('/home'); // Redirect to home page on success
-        reset();  // Reset the form data after successful login
+        reset(); // Reset form
       } else {
         throw new Error(result.message || 'Login failed');
       }
@@ -48,6 +52,7 @@ function Login() {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
